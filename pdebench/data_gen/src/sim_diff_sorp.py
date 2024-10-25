@@ -66,20 +66,35 @@ class Simulator:
 
         self.seed = seed
 
+    def initial_condition_function(self, x: np.ndarray) -> np.ndarray:
+        """
+        Defines the initial condition as a function of x.
+        :param x: The spatial grid points
+        :return: An array representing the initial condition based on x
+        """
+        # Example 1: Sinusoidal noise
+        # Amplitude and frequency can be adjusted
+        amplitude = 0.1
+        frequency = 5
+        return 0.2 + amplitude * np.sin(2 * np.pi * frequency * x)
+
+        # Example 2: Linear gradient
+        # return 0.2 + 0.1 * (x - self.X0) / (self.X1 - self.X0)
+
+        # Example 3: Exponential decay
+        # return 0.2 + 0.1 * np.exp(-5 * (x - self.X0))
+
     def generate_sample(self) -> np.ndarray:
         """
         Single sample generation using the parameters of this simulator.
         :return: The generated sample as numpy array(t, x, y, num_features)
         """
-        generator = np.random.default_rng(self.seed)
-        # Generate initial condition
-        u0 = np.ones(self.Nx) * generator.uniform(0, 0.2)
+        # Generate initial condition as a function of x instead of random noise
+        u0 = self.initial_condition_function(self.x)
 
         # Generate arrays as diagonal inputs to the Laplacian matrix
         main_diag = -2 * np.ones(self.Nx) / self.dx**2
-
         left_diag = np.ones(self.Nx - 1) / self.dx**2
-
         right_diag = np.ones(self.Nx - 1) / self.dx**2
 
         # Generate the sparse Laplacian matrix
@@ -87,7 +102,7 @@ class Simulator:
         offsets = [0, -1, 1]
         self.lap = diags(diagonals, offsets)
 
-        # Initialize the right hand side to account for the boundary condition
+        # Initialize the right-hand side to account for the boundary condition
         self.rhs = np.zeros(self.Nx)
 
         # Solve the diffusion reaction problem

@@ -34,7 +34,7 @@ def visualize_diff_sorp(path, seed=None):
     """
 
     # Read the h5 file and store the data
-    h5_file = h5py.File(Path(path) / "1D_diff-sorp_NA_NA.h5", "r")
+    h5_file = h5py.File(Path(path) / "a.h5", "r")
     num_samples = len(h5_file.keys())
 
     # randomly choose a seed for picking a sample that will subsequently be visualized
@@ -46,7 +46,7 @@ def visualize_diff_sorp(path, seed=None):
     assert seed < num_samples, "Seed number too high!"
 
     seed = str(seed).zfill(4)
-    data = np.array(h5_file[f"{seed}/data"], dtype="f")  # dim = [101, 1024, 1]
+    data = np.array(h5_file["0000/data"], dtype="f")  # dim = [101, 1024, 1]
 
     h5_file.close()
 

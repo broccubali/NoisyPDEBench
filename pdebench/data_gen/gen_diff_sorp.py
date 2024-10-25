@@ -32,14 +32,14 @@ import hydra
 import numpy as np
 from hydra.utils import get_original_cwd
 from omegaconf import DictConfig, OmegaConf
-from pdebench.data_gen.src import utils
-from pdebench.data_gen.uploader import dataverse_upload
+from src import utils
+from uploader import dataverse_upload
 
 log = logging.getLogger(__name__)
 
 
 def simulator(config, i):
-    from pdebench.data_gen.src import sim_diff_sorp
+    from src import sim_diff_sorp
 
     config.sim.seed = i
     log.info(f"Starting seed {i}")
@@ -109,7 +109,7 @@ def main(config: DictConfig):
     config.output_path = os.path.join(output_path, config.output_path) + ".h5"
 
     num_samples_init = 0
-    num_samples_final = 10000
+    num_samples_final = 10
 
     pool = mp.Pool(mp.cpu_count())
     seed = np.arange(num_samples_init, num_samples_final)
