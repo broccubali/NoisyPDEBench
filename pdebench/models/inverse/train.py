@@ -160,7 +160,7 @@ from pdebench.models.inverse.inverse import (
     InitialConditionInterp,
     ProbRasterLatent,
 )
-from pdebench.models.metrics import inverse_metrics
+from pdebench.models.pinn.metrics import inverse_metrics
 from pdebench.models.unet.unet import UNet1d, UNet2d, UNet3d
 from pdebench.models.unet.utils import UNetDatasetSingle
 from pyro.infer import MCMC, NUTS

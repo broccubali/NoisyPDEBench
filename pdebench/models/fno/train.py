@@ -7,9 +7,9 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from pdebench.models.fno.fno import FNO1d, FNO2d, FNO3d
-from pdebench.models.fno.utils import FNODatasetMult, FNODatasetSingle
-from pdebench.models.metrics import metrics
+from fno import FNO1d, FNO2d, FNO3d
+from utils import FNODatasetMult, FNODatasetSingle
+from metrics import metrics
 from torch import nn
 
 # torch.manual_seed(0)

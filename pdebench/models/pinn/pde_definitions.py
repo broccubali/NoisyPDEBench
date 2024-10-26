@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import deepxde as dde
 import numpy as np
-
+import tensorflow as tf
 
 def reaction_1(u1, u2):
     k = 5e-3
@@ -47,8 +47,7 @@ def pde_diffusion_sorption(x, y):
     # TODO: check indices of jacobian
     du1_t = dde.grad.jacobian(y, x, i=0, j=1)
 
-    u1 = y[..., 0].unsqueeze(1)
-
+    u1 = tf.expand_dims(y[..., 0], axis=-1)  # Equivalent to PyTorch's unsqueeze(1)
     # retardation_factor = 1 + (1 - por) / por * rho_s * k_f * torch.pow(u1, n_f - 1)
     retardation_factor = 1 + ((1 - por) / por) * rho_s * k_f * n_f * (u1 + 1e-6) ** (
         n_f - 1

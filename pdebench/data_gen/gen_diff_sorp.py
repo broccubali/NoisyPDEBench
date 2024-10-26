@@ -106,7 +106,7 @@ def main(config: DictConfig):
     output_path = os.path.join(work_path, config.data_dir, config.output_path)
     if not os.path.isdir(output_path):
         os.makedirs(output_path)
-    config.output_path = os.path.join(output_path, config.output_path) + ".h5"
+    config.output_path = os.path.join(output_path, "a.h5")
 
     num_samples_init = 0
     num_samples_final = 10

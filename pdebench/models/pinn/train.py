@@ -1,14 +1,15 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 from __future__ import annotations
-
+import tensorflow as tf
 import pickle
 
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from pdebench.models.metrics import metric_func
-from pdebench.models.pinn.pde_definitions import (
+
+from metrics import metric_func
+from pinn.pde_definitions import (
     pde_adv1d,
     pde_burgers1D,
     pde_CFD1d,
@@ -18,7 +19,7 @@ from pdebench.models.pinn.pde_definitions import (
     pde_diffusion_sorption,
     pde_swe2d,
 )
-from pdebench.models.pinn.utils import (
+from pinn.utils import (
     PINNDataset1Dpde,
     PINNDataset2D,
     PINNDataset2Dpde,
@@ -62,7 +63,7 @@ def setup_diffusion_sorption(filename, seed):
     data_split, _ = torch.utils.data.random_split(
         dataset,
         [ratio, len(dataset) - ratio],
-        generator=torch.Generator(device="cuda").manual_seed(42),
+        generator=torch.Generator(device="cpu").manual_seed(42),
     )
 
     data_gt = data_split[:]
@@ -80,7 +81,8 @@ def setup_diffusion_sorption(filename, seed):
     net = dde.nn.FNN([2] + [40] * 6 + [1], "tanh", "Glorot normal")
 
     def transform_output(x, y):
-        return torch.relu(y)
+        return tf.nn.relu(y)
+
 
     net.apply_output_transform(transform_output)
 
@@ -571,7 +573,7 @@ def run_training(
         errs = metric_func(test_pred, test_gt)
         errors = [np.array(err.cpu()) for err in errs]
         print(errors)
-        pickle.dump(errors, open(model_name + ".pickle", "wb"))
+        pickle.dump(model, open(model_name + ".pickle", "wb"))
 
 
 if __name__ == "__main__":
@@ -584,12 +586,12 @@ if __name__ == "__main__":
     #     seed="0000",
     # )
     run_training(
-        scenario="diff-react",
+        scenario="diff-sorp",
         epochs=100,
         learning_rate=1e-3,
         model_update=500,
-        flnm="2D_diff-react_NA_NA.h5",
-        seed="0000",
+        flnm="a.h5",
+        seed="0001",
     )
     # run_training(
     #     scenario="swe2d",

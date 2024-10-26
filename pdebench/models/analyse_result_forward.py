@@ -156,9 +156,9 @@ import pandas as pd
 
 def main():
     # get results
-    files = glob.glob("./*pickle")
+    files = glob.glob("./pinn/*pickle")
     files.sort()
-
+    print(files)
     # metric names
     var_names = [
         "MSE",

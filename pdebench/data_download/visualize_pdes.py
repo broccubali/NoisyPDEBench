@@ -35,40 +35,27 @@ def visualize_diff_sorp(path, seed=None):
 
     # Read the h5 file and store the data
     h5_file = h5py.File(Path(path) / "a.h5", "r")
-    num_samples = len(h5_file.keys())
+    samples = h5_file.keys()
+    for i in samples:
+        data = np.array(h5_file[f"{i}/data"], dtype="f")
+        # Initialize plot
+        fig, ax = plt.subplots()
 
-    # randomly choose a seed for picking a sample that will subsequently be visualized
-    rng = np.random.default_rng()
-    if not seed:
-        seed = rng.integers(low=0, high=num_samples, size=1).item()
+        # Store the plot handle at each time step in the 'ims' list
+        ims = []
+        for i in tqdm(range(data.shape[0])):
+            if i == 0:
+                im = ax.plot(
+                    data[0].squeeze(), animated=True, color="blue"
+                )  # show an initial one first
+            else:
+                im = ax.plot(data[i].squeeze(), animated=True, color="blue")
+            ims.append([im[0]])
 
-    # Ensure the seed number is defined
-    assert seed < num_samples, "Seed number too high!"
+        ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
-    seed = str(seed).zfill(4)
-    data = np.array(h5_file["0000/data"], dtype="f")  # dim = [101, 1024, 1]
-
-    h5_file.close()
-
-    # Initialize plot
-    fig, ax = plt.subplots()
-
-    # Store the plot handle at each time step in the 'ims' list
-    ims = []
-    for i in tqdm(range(data.shape[0])):
-        if i == 0:
-            im = ax.plot(
-                data[0].squeeze(), animated=True, color="blue"
-            )  # show an initial one first
-        else:
-            im = ax.plot(data[i].squeeze(), animated=True, color="blue")
-        ims.append([im[0]])
-
-    # Animate the plot
-    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
-
-    writer = animation.PillowWriter(fps=15, bitrate=1800)
-    ani.save("movie_diff_sorp.gif", writer=writer)
+        writer = animation.PillowWriter(fps=15, bitrate=1800)
+        ani.save(f"movie_diff_sorp{i}.gif", writer=writer)
 
 
 def visualize_2d_reacdiff(path, seed=None):

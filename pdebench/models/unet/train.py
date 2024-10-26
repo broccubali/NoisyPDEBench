@@ -7,7 +7,7 @@ from timeit import default_timer
 
 import numpy as np
 import torch
-from pdebench.models.metrics import metrics
+from pdebench.models.pinn.metrics import metrics
 from pdebench.models.unet.unet import UNet1d, UNet2d, UNet3d
 from pdebench.models.unet.utils import UNetDatasetMult, UNetDatasetSingle
 from torch import nn

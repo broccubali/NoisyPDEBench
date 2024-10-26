@@ -9,20 +9,22 @@ hydra:
     dir: .
 
 args:
-  model_name: "FNO"
+  model_name: "PINN"
   if_training: False
+  scenario: "diff-sorp"
   continue_training: False
+  seed: "0000"
   num_workers: 2
   batch_size: 5
   initial_step: 10
   t_train: 101
   model_update: 10
-  filename: "2D_diff-react_NA_NA"
+  filename: "a.h5"
   single_file: False
   reduced_resolution: 1
   reduced_resolution_t: 1
   reduced_batch: 1
-  epochs: 500
+  epochs: 100
   learning_rate: 1.e-3
   scheduler_step: 100
   scheduler_gamma: 0.5
@@ -45,6 +47,7 @@ args:
   mcmc_num_chains: 1
   num_samples_max: 1000
   in_channels_hid: 64
+  val_num: 10
   inverse_model_type: InitialConditionInterp
   #Inverse grad
   inverse_epochs: 100
