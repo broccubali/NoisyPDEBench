@@ -11,7 +11,7 @@ from typing import Optional
 
 import imageio
 import numpy as np
-from pdebench.data_gen.src import data_io
+from src import data_io
 from tqdm import tqdm
 
 logging.basicConfig(level=logging.INFO, filename=__name__)
@@ -49,7 +49,7 @@ def ns_sim(
     DT: float = 0.01,
     frame_int: int = 1,
     n_batch: int = 1,
-    backend: str = "jax",
+    backend: str = "pytorch",
     device: str = "GPU",
     jit: bool = True,
     profile: bool = False,

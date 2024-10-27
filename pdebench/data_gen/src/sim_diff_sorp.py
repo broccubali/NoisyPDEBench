@@ -65,19 +65,19 @@ class Simulator:
         sample_c = np.transpose(ode_data)
         sample_c = np.expand_dims(sample_c, axis=-1)
 
-        # spatial_noise = self.generate_spatially_correlated_noise()
-        # noisy_sample = sample_c + spatial_noise
+        spatial_noise = self.generate_spatially_correlated_noise()
+        noisy_sample = sample_c + spatial_noise
 
-        return sample_c
+        return noisy_sample
 
 
-    # def generate_spatially_correlated_noise(self) -> np.ndarray:
-    #     noise = self.generator.normal(0, 1, self.Nx)
+    def generate_spatially_correlated_noise(self) -> np.ndarray:
+        noise = self.generator.normal(0, 1, self.Nx)
 
-    #     kernel_size = 5  
-    #     smooth_noise = np.convolve(noise, np.ones(kernel_size) / kernel_size, mode="same")
+        kernel_size = 16  
+        smooth_noise = np.convolve(noise, np.ones(kernel_size) / kernel_size, mode="same")
 
-    #     return np.expand_dims(smooth_noise, axis=-1)
+        return np.expand_dims(smooth_noise, axis=-1)
 
     def rc_ode(self, t: float, y):
         left_BC = self.sol
@@ -90,16 +90,16 @@ class Simulator:
         self.rhs[0] = self.D / retardation[0] / (self.dx**2) * left_BC
         self.rhs[-1] = self.D / retardation[-1] / (self.dx**2) * right_BC
 
-        spatial_noise = np.sin(2 * np.pi * self.x) * self.generator.uniform(
-            -1, 1, self.Nx
-        )
-        time_dependent_noise = np.sin(2 * np.pi * t / self.T) * self.generator.uniform(
-            -1, 1, self.Nx
-        )
+        # spatial_noise = np.sin(2 * np.pi * self.x) * self.generator.uniform(
+        #     -1, 1, self.Nx
+        # )
+        # time_dependent_noise = np.sin(2 * np.pi * t / self.T) * self.generator.uniform(
+        #     -1, 1, self.Nx
+        # )
 
         return (
             self.D / retardation * (self.lap @ y)
             + self.rhs
-            + spatial_noise
-            + time_dependent_noise
+            # + spatial_noise
+            # + time_dependent_noise
         )
