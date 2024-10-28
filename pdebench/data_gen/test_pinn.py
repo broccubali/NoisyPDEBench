@@ -49,22 +49,25 @@ def some_eqs(model, coords, eq_params):
 # x_positions = np.linspace(0, 1, 1024)  # Adjust the range as needed
 # time_steps = np.linspace(0, 1, 101)  # Adjust the range as needed
 f = h5py.File(
-    "/home/shusrith/projects/blind-eyes/NoisyPDEBench/pdebench/data/1D_diff-sorp_NA_NA/a.h5",
+    "/home/shusrith/Downloads/a.h5",
     "r",
 )
-x_positions = f["0000"]["grid"]["x"][:]
-time_steps = f["0000"]["grid"]["t"][:]
+nu = f["nu"][0][:]
+x = f["x-coordinate"][:]
+y = f["y-coordinate"][:]
+ten = f["tensor"][0][0][:]
 # Create meshgrid
-T, X = np.meshgrid(time_steps, x_positions, indexing="ij")
-print(T.shape, X.shape)
+N, X, Y = np.meshgrid(nu, x, y, indexing="ij")
+print(N.shape, X.shape, Y.shape)
 # Flatten and combine
 X_flat = X.flatten().reshape(-1, 1)
-T_flat = T.flatten().reshape(-1, 1)
-input_data = np.hstack((X_flat, T_flat)).astype(np.float32)  # Convert to float32
+N_flat = N.flatten().reshape(-1, 1)
+Y_flat = Y.flatten().reshape(-1, 1)
+input_data = np.hstack((X_flat, Y_flat, N_flat)).astype(np.float32)  # Convert to float32
 
 # Flatten PDE values
 output_data = (
-    f["0000"]["data"][:].flatten().reshape(-1, 1).astype(np.float32)
+    ten.flatten().reshape(-1, 1).astype(np.float32)
 )  # Convert to float32
 
 # Now `input_data` is your X and `output_data` is your Y
@@ -102,7 +105,7 @@ PINN.train(
     lambda_phys=np.array([1.0 for _ in range(len(X))]),
     alpha=alpha,
     batch_size=64,
-    verbose=False,
+    verbose=True,
     timer=True,
 )
 
@@ -122,38 +125,38 @@ PINN.train(
 )
 print("Time per epoch:", (time.time() - t0) / tot_eps)
 
-# -----------------------------------------------------------------------------
-# Plot and validate
-# -----------------------------------------------------------------------------
+# # -----------------------------------------------------------------------------
+# # Plot and validate
+# # -----------------------------------------------------------------------------
 
-prefix = "odir/fig"
-PINN.ckpt.restore(PINN.manager.latest_checkpoint)
-if PINN.manager.latest_checkpoint:
-    print("Restored from {}".format(PINN.manager.latest_checkpoint))
-else:
-    print("Initializing from scratch.")
+# prefix = "odir/fig"
+# PINN.ckpt.restore(PINN.manager.latest_checkpoint)
+# if PINN.manager.latest_checkpoint:
+#     print("Restored from {}".format(PINN.manager.latest_checkpoint))
+# else:
+#     print("Initializing from scratch.")
 
-# -----------------------------------------------------------------------------
-# Make Predictions
-# -----------------------------------------------------------------------------
-# Make predictions
-predictions = PINN.model.predict(input_data)
+# # -----------------------------------------------------------------------------
+# # Make Predictions
+# # -----------------------------------------------------------------------------
+# # Make predictions
+# predictions = PINN.model.predict(input_data)
 
-# The first element of the predictions list contains the learned fields
-learned_fields = predictions[0]
+# # The first element of the predictions list contains the learned fields
+# learned_fields = predictions[0]
 
-# If you have inverse parameters, they will be in the subsequent elements of the predictions list
-if PINN.inverse is not None:
-    inverse_parameters = predictions[1:]
-else:
-    inverse_parameters = []
-PINN.model.compile(optimizer=keras.optimizers.Adam(learning_rate=5e-4), loss="mse")
+# # If you have inverse parameters, they will be in the subsequent elements of the predictions list
+# if PINN.inverse is not None:
+#     inverse_parameters = predictions[1:]
+# else:
+#     inverse_parameters = []
+# PINN.model.compile(optimizer=keras.optimizers.Adam(learning_rate=5e-4), loss="mse")
 
-loss = PINN.model.evaluate(input_data, learned_fields, verbose=1)
-print("Learned fields shape:", learned_fields.shape)
-if inverse_parameters:
-    for i, param in enumerate(inverse_parameters):
-        print(f"Inverse parameter {i} shape:", param.shape)
+# loss = PINN.model.evaluate(input_data, learned_fields, verbose=1)
+# print("Learned fields shape:", learned_fields.shape)
+# if inverse_parameters:
+#     for i, param in enumerate(inverse_parameters):
+#         print(f"Inverse parameter {i} shape:", param.shape)
 # Plot loss functions
 # ep, lu, lf = np.loadtxt("odir/output.dat", unpack=True)
 

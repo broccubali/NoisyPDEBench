@@ -409,9 +409,9 @@ def visualize_darcy(path, param=None):
         flnm = "2D_DarcyFlow_beta" + str(param) + "_Train.hdf5"
         assert Path(path + flnm).is_file(), "no such file! " + path + flnm
     else:
-        flnm = "2D_DarcyFlow_beta1.0_Train.hdf5"
+        flnm = "a.h5"
 
-    nb = 0
+    nb = 23
     with h5py.File(Path(path) / flnm, "r") as h5_file:
         data = np.array(h5_file["tensor"], dtype=np.float32)[
             nb
