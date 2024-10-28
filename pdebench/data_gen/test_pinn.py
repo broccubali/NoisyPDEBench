@@ -49,34 +49,27 @@ def some_eqs(model, coords, eq_params):
 # x_positions = np.linspace(0, 1, 1024)  # Adjust the range as needed
 # time_steps = np.linspace(0, 1, 101)  # Adjust the range as needed
 f = h5py.File(
-    "/home/shusrith/Downloads/a.h5",
+    "/home/shusrith/projects/blind-eyes/NoisyPDEBench/pdebench/data/1D_diff-sorp_NA_NA/a.h5",
     "r",
 )
-nu = f["nu"][0][:]
-x = f["x-coordinate"][:]
-y = f["y-coordinate"][:]
-ten = f["tensor"][0][0][:]
+x_positions = f["0000"]["grid"]["x"][:]
+time_steps = f["0000"]["grid"]["t"][:]
 # Create meshgrid
-N, X, Y = np.meshgrid(nu, x, y, indexing="ij")
-print(N.shape, X.shape, Y.shape)
+T, X = np.meshgrid(time_steps, x_positions, indexing="ij")
+print(T.shape, X.shape)
 # Flatten and combine
 X_flat = X.flatten().reshape(-1, 1)
-N_flat = N.flatten().reshape(-1, 1)
-Y_flat = Y.flatten().reshape(-1, 1)
-input_data = np.hstack((X_flat, Y_flat, N_flat)).astype(np.float32)  # Convert to float32
-
+T_flat = T.flatten().reshape(-1, 1)
+input_data = np.hstack((X_flat, T_flat)).astype(np.float32)  # Convert to float32
 # Flatten PDE values
 output_data = (
-    ten.flatten().reshape(-1, 1).astype(np.float32)
+    f["0000"]["data"][:].flatten().reshape(-1, 1).astype(np.float32)
 )  # Convert to float32
-
 # Now `input_data` is your X and `output_data` is your Y
 X = input_data
 Y = output_data
-
 print("Input shape (X):", X.shape)
 print("Output shape (Y):", Y.shape)
-
 # -----------------------------------------------------------------------------
 # Initialize PINN
 # -----------------------------------------------------------------------------
