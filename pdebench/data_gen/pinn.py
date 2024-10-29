@@ -534,18 +534,19 @@ class PhysicsInformedNN:
             loss_eqs = [tf.reduce_mean(lambda_phys * tf.square(eq)) for eq in equations]
             loss_phys = tf.add_n(loss_eqs)
 
+
         # Calculate gradients of data part
         gradients_data = tape.gradient(
             loss_data,
             self.model.trainable_variables,
-            unconnected_gradients=tf.UnconnectedGradients.ZERO,
+            # unconnected_gradients=tf.UnconnectedGradients.ZERO,
         )
 
         # Calculate gradients of physics part
         gradients_phys = tape.gradient(
             loss_phys,
             self.model.trainable_variables,
-            unconnected_gradients=tf.UnconnectedGradients.ZERO,
+            # unconnected_gradients=tf.UnconnectedGradients.ZERO,
         )
 
         # Delete tape
