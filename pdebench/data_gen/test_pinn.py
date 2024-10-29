@@ -5,7 +5,7 @@ import tensorflow as tf
 from tensorflow import keras
 import matplotlib.pyplot as plt
 import time
-import h5py
+import pickle
 from pinn import PhysicsInformedNN
 
 # -----------------------------------------------------------------------------
@@ -48,14 +48,14 @@ def some_eqs(model, coords, eq_params):
 # # Generate spatial positions and time steps
 # x_positions = np.linspace(0, 1, 1024)  # Adjust the range as needed
 # time_steps = np.linspace(0, 1, 101)  # Adjust the range as needed
-f = h5py.File(
-    "/home/shusrith/projects/blind-eyes/NoisyPDEBench/pdebench/data/1D_diff-sorp_NA_NA/a.h5",
-    "r",
-)
-x_positions = f["0000"]["grid"]["x"][:]
-time_steps = f["0000"]["grid"]["t"][:]
+path_load = "/home/shusrith/projects/blind-eyes/PredefinedNoisePDE/u,x,t/"
+file_to_read = open(path_load + "/2_0.pkl", "rb")
+loaded_dictionary = pickle.load(file_to_read)
+u = loaded_dictionary["u"]
+x = loaded_dictionary["x"]
+t = loaded_dictionary["t"]
 # Create meshgrid
-T, X = np.meshgrid(time_steps, x_positions, indexing="ij")
+T, X = np.meshgrid(t, x, indexing="ij")
 print(T.shape, X.shape)
 # Flatten and combine
 X_flat = X.flatten().reshape(-1, 1)
@@ -63,7 +63,7 @@ T_flat = T.flatten().reshape(-1, 1)
 input_data = np.hstack((X_flat, T_flat)).astype(np.float32)  # Convert to float32
 # Flatten PDE values
 output_data = (
-    f["0000"]["data"][:].flatten().reshape(-1, 1).astype(np.float32)
+    u.flatten().reshape(-1, 1).astype(np.float32)
 )  # Convert to float32
 # Now `input_data` is your X and `output_data` is your Y
 X = input_data
@@ -103,7 +103,7 @@ PINN.train(
 )
 
 t0 = time.time()
-tot_eps = 100
+tot_eps = 500
 PINN.train(
     X,
     Y,
@@ -122,30 +122,30 @@ print("Time per epoch:", (time.time() - t0) / tot_eps)
 # # Plot and validate
 # # -----------------------------------------------------------------------------
 
-# prefix = "odir/fig"
-# PINN.ckpt.restore(PINN.manager.latest_checkpoint)
-# if PINN.manager.latest_checkpoint:
-#     print("Restored from {}".format(PINN.manager.latest_checkpoint))
-# else:
-#     print("Initializing from scratch.")
+prefix = "odir/fig"
+PINN.ckpt.restore(PINN.manager.latest_checkpoint)
+if PINN.manager.latest_checkpoint:
+    print("Restored from {}".format(PINN.manager.latest_checkpoint))
+else:
+    print("Initializing from scratch.")
 
 # # -----------------------------------------------------------------------------
 # # Make Predictions
 # # -----------------------------------------------------------------------------
 # # Make predictions
-# predictions = PINN.model.predict(input_data)
+predictions = PINN.model.predict(input_data)
 
-# # The first element of the predictions list contains the learned fields
-# learned_fields = predictions[0]
+# The first element of the predictions list contains the learned fields
+learned_fields = predictions[0]
 
-# # If you have inverse parameters, they will be in the subsequent elements of the predictions list
-# if PINN.inverse is not None:
-#     inverse_parameters = predictions[1:]
-# else:
-#     inverse_parameters = []
-# PINN.model.compile(optimizer=keras.optimizers.Adam(learning_rate=5e-4), loss="mse")
+# If you have inverse parameters, they will be in the subsequent elements of the predictions list
+if PINN.inverse is not None:
+    inverse_parameters = predictions[1:]
+else:
+    inverse_parameters = []
+PINN.model.compile(optimizer=keras.optimizers.Adam(learning_rate=5e-4), loss="mse")
 
-# loss = PINN.model.evaluate(input_data, learned_fields, verbose=1)
+loss = PINN.model.evaluate(input_data, learned_fields, verbose=1)
 # print("Learned fields shape:", learned_fields.shape)
 # if inverse_parameters:
 #     for i, param in enumerate(inverse_parameters):
