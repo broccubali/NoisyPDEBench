@@ -539,14 +539,14 @@ class PhysicsInformedNN:
         gradients_data = tape.gradient(
             loss_data,
             self.model.trainable_variables,
-            # unconnected_gradients=tf.UnconnectedGradients.ZERO,
+            unconnected_gradients=tf.UnconnectedGradients.ZERO,
         )
 
         # Calculate gradients of physics part
         gradients_phys = tape.gradient(
             loss_phys,
             self.model.trainable_variables,
-            # unconnected_gradients=tf.UnconnectedGradients.ZERO,
+            unconnected_gradients=tf.UnconnectedGradients.ZERO,
         )
 
         # Delete tape
